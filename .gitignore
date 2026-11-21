@@ -1,0 +1,63 @@
+# Python environments
+.venv/
+venv/
+env/
+
+# Python caches and build output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Raw and generated data
+data/*.csv
+outputs/
+
+# MLflow tracking
+mlruns/
+mlflow.db
+mlflow.db.*
+
+# Local and downloaded datasets
+*.csv
+*.parquet
+*.feather
+
+# Preserve deployment metadata and model artifacts
+!artifacts/
+!artifacts/*.json
+!artifacts/*.joblib
+
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets*.json
+secrets*.yaml
+secrets*.yml
+
+# Editors and OS temporary files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# Logs and archives
+*.log
+*.zip
+*.tar
+*.tar.gz
+*.tgz
