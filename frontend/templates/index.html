@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1015">
+    <title>CycloneGuard | Preheater Monitoring</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="img">
+              <circle cx="20" cy="20" r="15"></circle>
+              <path d="M20 5c8 5 10 14 4 19-5 4-11 1-12-4-2-7 5-11 11-9"></path>
+              <circle cx="20" cy="20" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <strong>CycloneGuard</strong>
+            <span>Preheater Monitor</span>
+          </div>
+        </div>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a class="nav-item active" href="#overview" aria-current="page">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+            <span>Overview</span>
+          </a>
+          <a class="nav-item" href="#sensors">
+            <svg viewBox="0 0 24 24"><path d="M4 18V8M10 18V5M16 18v-7M22 18V3"></path></svg>
+            <span>Sensor Analytics</span>
+          </a>
+          <a class="nav-item" href="#episodes">
+            <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path><circle cx="12" cy="12" r="7"></circle></svg>
+            <span>Anomaly Episodes</span>
+          </a>
+          <a class="nav-item" href="#models">
+            <svg viewBox="0 0 24 24"><path d="M4 19V9l8-5 8 5v10"></path><path d="M8 19v-6h8v6M4 19h16"></path></svg>
+            <span>Model Health</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-status">
+          <div class="status-heading">
+            <span>System status</span>
+            <span class="status-dot" id="statusDot"></span>
+          </div>
+          <strong id="sidebarStatus">Checking...</strong>
+          <small id="sidebarModels">Connecting to API</small>
+        </div>
+      </aside>
+
+      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="main-column">
+        <header class="topbar">
+          <button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+          <div class="topbar-title">
+            <span>Operations /</span>
+            <strong>Preheater overview</strong>
+          </div>
+          <div class="topbar-actions">
+            <span class="live-status"><i></i> Live system</span>
+            <button class="icon-button" type="button" aria-label="Notifications">
+              <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+            </button>
+            <div class="avatar" aria-label="Operator profile">CG</div>
+          </div>
+        </header>
+
+        <main class="dashboard" id="overview">
+          <section class="page-heading">
+            <div>
+              <p class="eyebrow">Cyclone preheater</p>
+              <h1>Monitoring overview</h1>
+            </div>
+            <div class="heading-actions">
+              <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+                Date filter
+              </button>
+              <button class="refresh-button" id="refreshButton" type="button">
+                <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2.3 5.7M20 4v7h-7"></path></svg>
+                Refresh
+              </button>
+            </div>
+          </section>
+
+          <section class="chart-filter-bar" id="chartFilterBar" aria-label="Chart filters">
+            <label>
+              <span>Start</span>
+              <input type="datetime-local" id="startDate">
+            </label>
+            <label>
+              <span>End</span>
+              <input type="datetime-local" id="endDate">
+            </label>
+            <button type="button" class="apply-button" id="applyFilters">Apply</button>
+            <button type="button" class="clear-button" id="clearFilters">Clear</button>
+          </section>
+
+          <div class="kpi-grid" aria-label="Key performance indicators">
+            <article class="kpi-card">
+              <div class="kpi-icon amber">
+                <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"></path><circle cx="12" cy="12" r="8"></circle></svg>
+              </div>
+              <div class="kpi-copy">
+                <span>Anomaly rate</span>
+                <strong id="kpiAnomalyRate">--</strong>
+              </div>
+              <span class="kpi-trend neutral" id="kpiAnomalyCount">Loading</span>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon cyan">
+                <svg viewBox="0 0 24 24"><path d="M4 19V9l8-5 8 5v10"></path><path d="M8 19v-6h8v6M4 19h16"></path></svg>
+              </div>
+              <div class="kpi-copy">
+                <span>Test records</span>
+                <strong id="kpiTestRecords">--</strong>
+              </div>
+              <span class="kpi-trend neutral" id="kpiPredictionRecords">Loading</span>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon blue">
+                <svg viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"></path></svg>
+              </div>
+              <div class="kpi-copy">
+                <span>Peak anomaly score</span>
+                <strong id="kpiPeakScore">--</strong>
+              </div>
+              <span class="kpi-trend neutral" id="kpiMeanScore">Loading</span>
+            </article>
+
+            <article class="kpi-card">
+              <div class="kpi-icon violet">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path></svg>
+              </div>
+              <div class="kpi-copy">
+                <span>Anomaly episodes</span>
+                <strong id="kpiEpisodes">--</strong>
+              </div>
+              <span class="kpi-trend neutral" id="kpiEpisodePoints">Loading</span>
+            </article>
+          </div>
+
+          <section class="monitoring-grid" id="sensors">
+            <article class="panel score-panel">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Multivariate monitoring</p>
+                  <h2>Anomaly score</h2>
+                </div>
+                <div class="panel-meta">
+                  <span class="legend-dot"></span>
+                  <span id="thresholdLabel">Threshold loading</span>
+                </div>
+              </header>
+              <div class="chart-container" id="scoreChartContainer">
+                <canvas id="scoreChart" aria-label="Anomaly score timeline"></canvas>
+                <div class="chart-loading" id="scoreChartLoading">Loading anomaly timeline...</div>
+              </div>
+            </article>
+
+            <article class="panel sensor-panel">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Asset condition</p>
+                  <h2>Sensor forecast</h2>
+                </div>
+                <label class="sensor-select-wrap">
+                  <span class="visually-hidden">Sensor</span>
+                  <select id="sensorSelect" aria-label="Select sensor">
+                    <option value="">Loading sensors...</option>
+                  </select>
+                </label>
+              </header>
+              <div class="chart-container sensor-chart-container" id="sensorChartContainer">
+                <canvas id="sensorChart" aria-label="Sensor actual and predicted values"></canvas>
+                <div class="chart-loading" id="sensorChartLoading">Loading sensor forecast...</div>
+              </div>
+            </article>
+          </section>
+
+          <section class="details-grid">
+            <article class="panel episodes-panel" id="episodes">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Most recent findings</p>
+                  <h2>Anomaly episodes</h2>
+                </div>
+                <button class="text-button" type="button" id="viewEpisodes">View all</button>
+              </header>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Start time</th>
+                      <th>Duration</th>
+                      <th>Points</th>
+                      <th>Peak score</th>
+                      <th>Primary sensor</th>
+                    </tr>
+                  </thead>
+                  <tbody id="episodesTable">
+                    <tr><td colspan="5" class="table-state">Loading episodes...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel model-panel" id="models">
+              <header class="panel-header">
+                <div>
+                  <p class="panel-kicker">Forecast performance</p>
+                  <h2>Model health</h2>
+                </div>
+                <span class="model-status" id="modelStatus">Checking</span>
+              </header>
+              <div class="model-list" id="modelList">
+                <div class="sensor-loading">Loading model metrics...</div>
+              </div>
+            </article>
+          </section>
+
+          <footer class="dashboard-footer">
+            <span>CycloneGuard monitoring workspace</span>
+            <span id="lastUpdated">Waiting for API data</span>
+          </footer>
+        </main>
+      </div>
+    </div>
+
+    <script src="/static/vendor/chart.umd.min.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+  </body>
+</html>

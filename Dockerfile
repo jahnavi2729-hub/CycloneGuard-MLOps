@@ -13,6 +13,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
 COPY app.py .
 COPY src/ src/
 COPY artifacts/ artifacts/
+COPY frontend/ frontend/
 
 RUN python -c "import json; from pathlib import Path, PurePosixPath; p=Path('/app/artifacts/lightgbm_deployment_metadata.json'); m=json.loads(p.read_text(encoding='utf-8')); m['model_paths']={sensor: str(PurePosixPath('/app/artifacts') / PurePosixPath(str(path).replace(chr(92), '/')).name) for sensor,path in m['model_paths'].items()}; p.write_text(json.dumps(m,indent=2),encoding='utf-8')"
 
