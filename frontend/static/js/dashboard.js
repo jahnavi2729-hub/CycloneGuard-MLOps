@@ -107,21 +107,6 @@ function renderSummary(summary) {
     endInput.max = toDateTimeLocal(range.end);
   }
 
-  const sensorSelect = document.getElementById("sensorSelect");
-  sensorSelect.replaceChildren(
-    ...(summary.sensors || []).map((sensor) => {
-      const option = document.createElement("option");
-      option.value = sensor;
-      option.textContent = sensor.replaceAll("_", " ");
-      return option;
-    })
-  );
-
-  if (!summary.sensors || summary.sensors.length === 0) {
-    sensorSelect.innerHTML =
-      '<option value="">No sensors available</option>';
-  }
-
   document.getElementById("lastUpdated").textContent =
     `Updated ${new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
@@ -225,42 +210,19 @@ function buildHistoryQuery(extra = {}) {
 
 async function loadHistoricalCharts() {
   const scoreLoading = document.getElementById("scoreChartLoading");
-  const sensorLoading = document.getElementById("sensorChartLoading");
   scoreLoading.classList.remove("hidden");
-  sensorLoading.classList.remove("hidden");
-
-  const sensorSelect = document.getElementById("sensorSelect");
-  const sensor = sensorSelect.value;
-  if (!sensor) {
-    scoreLoading.textContent = "Sensor selection unavailable";
-    sensorLoading.textContent = "Sensor selection unavailable";
-    return;
-  }
-
-  const [scoresResult, predictionsResult] = await Promise.allSettled([
-    fetchJson(`/api/history/scores?${buildHistoryQuery()}`),
-    fetchJson(
-      `/api/history/predictions?${buildHistoryQuery({ sensor })}`
-    ),
-  ]);
-
-  if (scoresResult.status === "fulfilled") {
-    const records = scoresResult.value.records || [];
+  try {
+    const payload = await fetchJson(
+      `/api/history/scores?${buildHistoryQuery()}`
+    );
+    const records = payload.records || [];
     window.CycloneCharts.renderScore(
       records,
       state.health ? state.health.anomaly_threshold : 0
     );
     scoreLoading.classList.add("hidden");
-  } else {
-    scoreLoading.textContent = scoresResult.reason.message;
-  }
-
-  if (predictionsResult.status === "fulfilled") {
-    const records = predictionsResult.value.records || [];
-    window.CycloneCharts.renderSensor(records, sensor);
-    sensorLoading.classList.add("hidden");
-  } else {
-    sensorLoading.textContent = predictionsResult.reason.message;
+  } catch (error) {
+    scoreLoading.textContent = error.message;
   }
 }
 
@@ -339,7 +301,6 @@ function setupChartFilters() {
   const clearButton = document.getElementById("clearFilters");
   const startInput = document.getElementById("startDate");
   const endInput = document.getElementById("endDate");
-  const sensorSelect = document.getElementById("sensorSelect");
 
   filterToggle.addEventListener("click", () => {
     const isOpen = filterBar.classList.toggle("open");
@@ -350,8 +311,6 @@ function setupChartFilters() {
     if (startInput.value && endInput.value && startInput.value > endInput.value) {
       document.getElementById("scoreChartLoading").textContent =
         "Start must be earlier than or equal to end.";
-      document.getElementById("sensorChartLoading").textContent =
-        "Invalid date range.";
       return;
     }
 
@@ -367,8 +326,6 @@ function setupChartFilters() {
     state.end = null;
     await loadHistoricalCharts();
   });
-
-  sensorSelect.addEventListener("change", loadHistoricalCharts);
 }
 
 document.getElementById("refreshButton").addEventListener("click", loadDashboard);

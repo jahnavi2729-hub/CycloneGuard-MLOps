@@ -569,7 +569,7 @@ a {
 }
 
 .monitoring-grid {
-  grid-template-columns: minmax(0, 1.75fr) minmax(280px, 0.75fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .details-grid {
@@ -634,10 +634,6 @@ a {
   height: 278px;
   padding: 12px 10px 8px;
   background: #0e141b;
-}
-
-.sensor-chart-container {
-  height: 278px;
 }
 
 .chart-container canvas {

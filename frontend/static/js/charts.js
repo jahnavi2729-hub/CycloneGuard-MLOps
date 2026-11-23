@@ -1,6 +1,5 @@
 window.CycloneCharts = (() => {
   let scoreChart = null;
-  let sensorChart = null;
 
   const chartDefaults = {
     responsive: true,
@@ -127,84 +126,12 @@ window.CycloneCharts = (() => {
     });
   }
 
-  function renderSensor(records, sensor) {
-    const canvas = document.getElementById("sensorChart");
-    if (!canvas) return;
-
-    if (sensorChart) sensorChart.destroy();
-
-    const labels = records.map((record) => record.time_dt);
-    const actual = records.map((record) => Number(record[`${sensor}_actual`]));
-    const predicted = records.map((record) => Number(record[`${sensor}_pred`]));
-
-    sensorChart = new Chart(canvas, {
-      type: "line",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "Actual",
-            data: actual,
-            borderColor: "#669cff",
-            backgroundColor: "transparent",
-            borderWidth: 1.35,
-            pointRadius: 0,
-            pointHoverRadius: 3,
-            tension: 0.12,
-          },
-          {
-            label: "Predicted",
-            data: predicted,
-            borderColor: "#9d86ff",
-            backgroundColor: "transparent",
-            borderWidth: 1.35,
-            borderDash: [5, 4],
-            pointRadius: 0,
-            pointHoverRadius: 3,
-            tension: 0.12,
-          },
-        ],
-      },
-      options: {
-        ...chartDefaults,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-          legend: {
-            display: true,
-            align: "end",
-            labels: {
-              color: textColor(),
-              boxWidth: 18,
-              boxHeight: 2,
-              padding: 12,
-              font: { size: 10 },
-            },
-          },
-          tooltip: {
-            backgroundColor: "#151d26",
-            borderColor: "#2d3a47",
-            borderWidth: 1,
-            titleColor: "#eef4f8",
-            bodyColor: "#bac5ce",
-            padding: 10,
-            callbacks: { title: tooltipTitle },
-          },
-        },
-        scales: baseScaleOptions(),
-      },
-    });
-  }
-
   function destroyAll() {
     if (scoreChart) {
       scoreChart.destroy();
       scoreChart = null;
     }
-    if (sensorChart) {
-      sensorChart.destroy();
-      sensorChart = null;
-    }
   }
 
-  return { renderScore, renderSensor, destroyAll };
+  return { renderScore, destroyAll };
 })();
